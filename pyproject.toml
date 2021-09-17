@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "easy-leaf-area"
+version = "0.1.0"
+description = ""
+authors = ["Hsien Ming Easlon <heaslon@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.10"
+
+[tool.poetry.dev-dependencies]
+pillow = "^8.3.2"
+tk = "^0.1.0"
+numpy = "^1.21.2"
+#scipy = "^1.7.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,9 +1,7 @@
 import os, sys
 
-
-#from Tkinter import Frame, Tk, Label, Button, Scale, HORIZONTAL, Checkbutton, IntVar
-from Tkinter import *
-from tkFileDialog import *
+from tkinter import Tk,Frame,Button, Label, Scale, HORIZONTAL, Checkbutton, IntVar
+from tkinter.filedialog import *
 from PIL import Image, ImageStat, ImageDraw, ImageFont
 from PIL import TiffImagePlugin
 
@@ -11,7 +9,7 @@ from PIL import ImageTk
 
 import scipy
 from scipy import ndimage
-#import matplotlib.pyplot as plt
+import numpy
 
 
 def Show_pic(pic):	
@@ -44,26 +42,26 @@ def Pixel_check(curFile, dirF, file, keepdata):
 	#	print "Flipping picture"
 	#	pic = pic.transpose(Image.FLIP_LEFT_RIGHT)
 	imgdata = pic.load()
-	print file," loaded"
+	print(file," loaded")
 	
 	
 	#Show_pic(pic)
 	
 	speedP=speedPscale.get()		
 	xsize, ysize = pic.size
-	xsize=xsize/speedP
-	ysize=ysize/speedP
+	xsize=(int)(xsize/speedP)
+	ysize=(int)(ysize/speedP)
 	pic=pic.resize((xsize,ysize))
 	pic2=pic2.resize((xsize,ysize))
 	picr=picr.resize((xsize,ysize))
 	xsize, ysize = pic.size
-	print xsize,"x", ysize
+	print (xsize,"x", ysize)
 	minG=minGscale.get()
 	minR=minRscale.get()
 	ratG=ratGscale.get()
 	ratGb=ratGbscale.get()
 	ratR=ratRscale.get()
-	print minG, minR, ratG, ratR
+	print (minG, minR, ratG, ratR)
 	pixels = pic.load() # create the pixel map
 	leafpix = []
 	scalepix = []
@@ -94,12 +92,12 @@ def Pixel_check(curFile, dirF, file, keepdata):
 	if (delBack.get()):
 		for i in backpix:
 			pixels[i] = (255,255,255)
-	flat = scipy.misc.fromimage(pic2,flatten=1)
-	flatr= scipy.misc.fromimage(picr,flatten=1)
+	flat = numpy.asarray(pic2.convert("L"))
+	flatr= numpy.asarray(picr.convert("L"))
 	
 	blobs, leaves = ndimage.label(flat)
 	blobsr, scales = ndimage.label(flatr)	
-	print "Number of blobs: ", leaves
+	print ("Number of blobs: ", leaves)
 	scalehist=ndimage.measurements.histogram(blobsr, 1,scales,scales) 
 	cnt=1
 	gcnt=0
@@ -115,7 +113,7 @@ def Pixel_check(curFile, dirF, file, keepdata):
 				cntj=0
 				gcnt=0
 				parcnt=parcnt+1
-				print "big enough", cnt, s
+				print ("big enough", cnt, s)
 				for i in range(pic.size[0]):    # for every pixel:
 					for j in range(pic.size[1]):
 						#gcnt= blobs[j,i]
@@ -153,7 +151,7 @@ def Pixel_check(curFile, dirF, file, keepdata):
 				cntj=0
 				gcnt=0
 				parcnt=parcnt+1
-				print "big enough", cnt, s
+				print ("big enough", cnt, s)
 				for i in range(pic.size[0]):    # for every pixel:
 					for j in range(pic.size[1]):
 						#gcnt= blobs[j,i]
@@ -178,18 +176,18 @@ def Pixel_check(curFile, dirF, file, keepdata):
 		#print largeleaf
 		leafprint= ', '.join(map(str, largeleaf))
 	else:
-		print "NO CONNECTED COMPONENT ANALYSIS"
+		print ("NO CONNECTED COMPONENT ANALYSIS")
 		for i in leafpix:
 			pixels[i] = (0,255,0)
 		leafprint = "No connected component analysis"
 	
-	print gCnt, rCnt
+	print (gCnt, rCnt)
 
 	
 	
 	percarea = float(gCnt)/(xsize*ysize)*100
 	print (xsize*ysize)
-	print percarea
+	print (percarea)
 	
 	#leafarea = float(gCnt)/float(rCnt)*0.1
 	if rCnt < 1:
@@ -205,7 +203,7 @@ def Pixel_check(curFile, dirF, file, keepdata):
 
 	return gCnt, rCnt, pic, pixdata, leafarea, percarea
 def single_LA(keepdata):
-	print "Measuring..."
+	print ("Measuring...")
 	global chosfile
 	global dirF
 	
@@ -248,17 +246,17 @@ def single_LA(keepdata):
 				f.write("\n")
 		except:
 			open (dirF+'/Canopyarea.csv', "w")
-			print "creating new output file"
+			print ("creating new output file")
 			with open(highlightfile, "a") as f:
 				f.write("filename,total green pixels,red pixels (0.1 m^2),leaf area m^2, % cover, Component green pixels:")
 				f.write("\n")
 		save_Output(highlightfile, file, pixdata, pic, dirF)
-	print imagebright
+	print (imagebright)
 
-	print "Finished processing image"
+	print ("Finished processing image")
 
 def run_LA():
-	print "Measuring..."
+	print ("Measuring...")
 	global dirS
 	global dirF
 	global chosfile
@@ -320,7 +318,7 @@ def run_LA():
 
 		save_Output(highlightfile, file, pixdata, pic, dirF)
 
-	print "Finished processing images"
+	print ("Finished processing images")
 	
 def S_dir():
 	global dirS
@@ -331,11 +329,11 @@ def F_dir():
 	dirF = askdirectory()
 	Flabel.configure(text = dirF)
 def check_Sett():
-	print "Batch processing"
+	print ("Batch processing")
 	run_LA()
 def chos_file():
 	global chosfile
-	chosfile = askopenfilename(filetypes=[("JPEG", "*.jpg; *.jpe; *.jpeg"), ("TIFF", "*.tiff; *.tif")])
+	chosfile = askopenfilename(filetypes=[("JPEG", "*.jpg *.jpe *.jpeg"), ("TIFF", "*.tiff *.tif")])
 
 	pic = Image.open(chosfile)
 	xsize, ysize = pic.size
@@ -348,20 +346,20 @@ def chos_file():
 	Pixlabel = Label(main, height = 1, width = 60)
 	Pixlabel.configure (text = "  ")
 	Pixlabel.grid(row =2, column =2)
-	print "loaded   "+chosfile
+	print ("loaded   "+chosfile)
 def sing_Meas():
-	print "Measuring image"
+	print ("Measuring image")
 	keepdata=0
 	single_LA(keepdata)
 def show_Output():
 	global dirF
-	print dirF
-	print "Opening output file in default application"
+	print (dirF)
+	print ("Opening output file in default application")
 	outputfile = 'start '+dirF+'/Canopyarea.csv'
 	os.system(outputfile)
 
 def save_Output(highlightfile, file, pixdata, pic, dirF):
-	print "save output"
+	print ("save output")
 
 	with open(highlightfile, "a") as f:
 		f.write(pixdata)
@@ -375,11 +373,11 @@ def auto_Settings():
 	#imgdata = pic.load()
 	speedP=8		
 	xsize, ysize = pic.size
-	xsize=xsize/speedP
-	ysize=ysize/speedP
+	xsize=(int) (xsize/speedP)
+	ysize=(int) (ysize/speedP)
 	pic=pic.resize((xsize,ysize))
 	xsize, ysize = pic.size
-	print xsize,"x", ysize
+	print (xsize,"x", ysize)
 	ratG=2
 	ratGb=1.8
 	minG = 75
@@ -387,7 +385,7 @@ def auto_Settings():
 	lpcntb = 0
 	lpcnt =0
 	pixels = pic.load() # create the pixel map
-	print"Conservative settings:"
+	print ("Conservative settings:")
 
 	
 	minGscale.set(15)	
@@ -401,13 +399,13 @@ def auto_Settings():
 	cnt =0
 	lpcntb = 0
 	lpcnt =0
-	print"Conservative settings scale:"
-	print "minR, ratR"
+	print ("Conservative settings scale:")
+	print ("minR, ratR")
 	scalepix=[]
 	if (noRed.get()<1):
 		while cnt <200:
-			print minR, ratR
-			print lpcnt
+			print (minR, ratR)
+			print (lpcnt)
 			scalepix=[]
 			for i in range(pic.size[0]):    # for every pixel:
 				for j in range(pic.size[1]):
@@ -428,7 +426,7 @@ def auto_Settings():
 			if lpcnt >3:
 				cnt =201
 				scalepix=[]
-				print "NO RED SCALE FOUND"
+				print ("NO RED SCALE FOUND")
 	ravg=0
 	gravg=0
 	bravg=0
@@ -446,8 +444,8 @@ def auto_Settings():
 		gravg=float(gravg)/float(cnt)
 		bravg=float(bravg)/float(cnt)
 		gravg=(gravg+bravg)/2
-		print "ravg rRatioAvg"
-		print ravg, gravg
+		print ("ravg rRatioAvg")
+		print (ravg, gravg)
 		gravg=0.134*gravg+0.782
 		if gravg <1.011: gravg=1.01
 		minRscale.set(1.412*ravg-140.6)	
